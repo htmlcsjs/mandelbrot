@@ -76,23 +76,34 @@ int main(int argc, char const *argv[])
     imgWidth = atoi(argv[1]);
     imgHeight = atoi(argv[2]);
 
-    // If the Width change is supplied, remember it 
-    if (argc > 3 && strcmp(argv[3], "d") == false)
+    // If the thread count is supplied, remember it
+    if (argc > 3)
     {
-        widthChange = atof(argv[3]);
+        threadMode = argv[3];
     }
     
-    // If the Height change is supplied, remember it
+    // If the Width change is supplied, remember it 
     if (argc > 4 && strcmp(argv[4], "d") == false)
     {
-        heightChange = atof(argv[4]);
+        widthChange = atof(argv[4]);
     }
-
-    // If the thread count is supplied, remember it
-    if (argc > 5)
+    else if (argc > 4 && strcmp(argv[4], "d") == true)
     {
-        threadMode = argv[5];
+        widthChange = -1.5;
     }
+    
+    
+    // If the Height change is supplied, remember it
+    if (argc > 5 && strcmp(argv[5], "d") == false)
+    {
+        heightChange = atof(argv[5]);
+    }
+    else if (argc > 5 && strcmp(argv[5], "d") == true)
+    {
+        heightChange = -0.5;
+    }
+    
+
 
     // makes sure we can open the output file
     std::ofstream myImage("mandelbrot.ppm");
