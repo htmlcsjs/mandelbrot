@@ -1,20 +1,24 @@
 #include <complex>
 #include <cstring>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
+#
 
 // Declare global varibles
-int width;
-int height;
+int imgWidth;
+int imgHeight;
+std::string threadMode;
 double widthChange = -1.5;
 double heightChange = -0.5;
 
 /* I dont really know how this works */
 int value(int x, int y, double changeWidth, double changeHeight)
 {
-    std::complex<float> point((float)x / width + changeWidth, (float)y / height + changeHeight);
+    std::complex<float> point((float)x / imgWidth + changeWidth, (float)y / imgHeight + changeHeight);
     std::complex<float> z(0, 0);
     int nb_iter = 0;
     while (std::abs(z) < 2 && nb_iter <= 80)
@@ -32,6 +36,34 @@ int value(int x, int y, double changeWidth, double changeHeight)
     }
 }
 
+std::string threadLoop(int startY, int endY, int width)
+{
+    std::vector<std::vector<std::string>> imgData; // declare the 2D image data vector
+
+    for (int y = startY; y < endY; y++)
+    {
+        std::vector<std::string> rowData; // row data vector
+
+        for (int x = 0; x < width; x++)
+        {
+            int val = value(x, y, widthChange, heightChange);
+            std::string toAppend = "0 0 " + std::to_string(val) + "\n";
+            rowData.push_back(toAppend); // write the pixel data to rowData
+        }
+        imgData.push_back(rowData); // write rowData to imgData
+    }
+    std::string returnVal; // declare the return string
+    // loop over each pixel and add it to return string
+    for (size_t i = 0; i < imgData.size(); i++)
+    {
+        for (size_t j = 0; j < imgData[i].size(); j++)
+        {
+            returnVal.append(imgData[i][j]);
+        }
+    }
+    return returnVal;
+}
+
 int main(int argc, char const *argv[])
 {
     // If the Width and hight aruments are not presnt, return
@@ -41,62 +73,98 @@ int main(int argc, char const *argv[])
     }
     
     // Set Width and hight
-    width = atoi(argv[1]);
-    height = atoi(argv[2]);
+    imgWidth = atoi(argv[1]);
+    imgHeight = atoi(argv[2]);
 
-    // If the Width change is supplied, remember it 
-    if (argc > 3 && strcmp(argv[3], "d") == false)
+    // If the thread count is supplied, remember it
+    if (argc > 3)
     {
-        widthChange = atof(argv[3]);
+        threadMode = argv[3];
     }
     
-    // If the Height change is supplied, remember it
+    // If the Width change is supplied, remember it 
     if (argc > 4 && strcmp(argv[4], "d") == false)
     {
-        heightChange = atof(argv[4]);
+        widthChange = atof(argv[4]);
     }
-        
-    // count the rows for a percent done
-    float rowCount = 0.0;
+    else if (argc > 4 && strcmp(argv[4], "d") == true)
+    {
+        widthChange = -1.5;
+    }
     
+    
+    // If the Height change is supplied, remember it
+    if (argc > 5 && strcmp(argv[5], "d") == false)
+    {
+        heightChange = atof(argv[5]);
+    }
+    else if (argc > 5 && strcmp(argv[5], "d") == true)
+    {
+        heightChange = -0.5;
+    }
+    
+
+
     // makes sure we can open the output file
     std::ofstream myImage("mandelbrot.ppm");
     if (myImage.is_open())
     {
         myImage.close(); // close it for more ram
 
-        std::vector<std::vector<std::string>> imgData; // declare the 2D image data vector
-
-        for (int y = 0; y < height; y++)
+        std::string data;
+        if (threadMode == "m")
         {
-            std::vector<std::string> rowData; // row data vector
+            // generate the 1st thread
+            auto t1 = std::async(std::launch::async, threadLoop, 0, imgHeight / 12, imgWidth);                             
+            // generate the 2nd thread
+            auto t2 = std::async(std::launch::async, threadLoop, imgHeight / 12 + 1, imgHeight / 12 * 2, imgWidth);        
+            //generate the 3rd thread
+            auto t3 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 2 + 1, imgHeight / 12 * 3, imgWidth);    
+            // generate the 4th thread
+            auto t4 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 3 + 1, imgHeight / 12 * 4, imgWidth);    
+            // generate the 5th thread
+            auto t5 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 4 + 1, imgHeight / 12 * 5, imgWidth);    
+            // generate the 6th thread
+            auto t6 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 5 + 1, imgHeight / 12 * 6, imgWidth);    
+            // generate the 7th thread
+            auto t7 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 6 + 1, imgHeight / 12 * 7, imgWidth);    
+            // generate the 8th thread
+            auto t8 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 7 + 1, imgHeight / 12 * 8, imgWidth);    
+            // generate the 9th thread
+            auto t9 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 8 + 1, imgHeight / 12 * 9, imgWidth);    
+            // generate the 10th thread
+            auto t10 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 9 + 1, imgHeight / 12 * 10, imgWidth);  
+            // generate the 11th thread
+            auto t11 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 10 + 1, imgHeight / 12 * 11, imgWidth); 
+            // generate the 12th thread
+            auto t12 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 11 + 1, imgHeight, imgWidth); 
 
-            for (int x = 0; x < width; x++)
-            {
-                int val = value(x, y, widthChange, heightChange);
-                std::string toAppend = std::to_string(val) + " 0 0" + "\n";
-                rowData.push_back(toAppend); // write the pixel data to rowData
-            }
-            imgData.push_back(rowData); // write rowData to imgData
-
-            rowCount++; // increse rowCount
-            std::cout << (rowCount/height)*100 << "%\n"; // print percentage done
+            data = t1.get();
+            data = data + t2.get();            
+            data = data + t3.get();
+            data = data + t4.get();
+            data = data + t5.get();
+            data = data + t6.get();
+            data = data + t7.get();
+            data = data + t8.get();
+            data = data + t9.get();
+            data = data + t10.get();
+            data = data + t11.get();
+            data = data + t12.get();            
         }
-
-        std::ofstream myImage("mandelbrot.ppm"); // open the output file for writeing
-        
-        myImage << "P3\n" << width << " " << height << " 255\n"; // write metadata
-
-        // loop over each vector, then cell and write it
-        for (size_t i = 0; i < imgData.size(); i++)
+        else
         {
-            for (size_t j = 0; j < imgData[i].size(); j++)
-            {
-                myImage << imgData[i][j];
-            }
+            data = threadLoop(0, imgHeight, imgWidth); 
         }
         
-        myImage.close(); // close the output file
+
+            
+
+        std::ofstream myImage("mandelbrot.ppm"); // open the output file for writing
+
+        myImage << "P3\n" << imgWidth << " " << imgHeight << " 255\n"; // write metadata
+        myImage << data;                                               // write data
+        myImage.close();                                               // close the output file
     }
     else
     {

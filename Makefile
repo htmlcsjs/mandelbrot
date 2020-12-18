@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -g
+CXXFLAGS = -Wall -g -pthread
 LDFLAGS = 
 
 all: main
@@ -17,5 +17,4 @@ check: main
 
 clean:
 	$(RM) main.out
-	$(RM) aurman.o
 	$(RM) test.out
