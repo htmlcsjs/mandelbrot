@@ -12,17 +12,6 @@ double heightChange = -0.5;
 
 int value(int x, int y, double changeWidth, double changeHeight)
 {
-    /*double newStretchX, newStretchY;
-    newStretchX = 1.0 / (1);
-    newStretchY = 1.0 / (1);
-
-    double halfWidth, halfHeight;
-    halfWidth = width / 2;
-    halfHeight = height / 2;
-
-    double newX = ((double)width - halfWidth) * newStretchX;
-    double newY = ((double)height - halfHeight) * newStretchY;*/
-
     std::complex<float> point((float)x / width + changeWidth, (float)y / height + changeHeight);
     std::complex<float> z(0, 0);
     int nb_iter = 0;
@@ -67,6 +56,7 @@ int main(int argc, char const *argv[])
     if (myImage.is_open())
     {
         myImage << "P3\n" << width << " " << height << " 255\n";
+        std::vector<std::vector<std::string>> imgData;
         for (int y = 0; y < height; y++)
         {
             std::vector<std::string> rowData;
@@ -76,12 +66,16 @@ int main(int argc, char const *argv[])
                 std::string toAppend = std::to_string(val) + " 0 0" + "\n";
                 rowData.push_back(toAppend);
             }
+            imgData.push_back(rowData);
             rowCount++;
-            for (size_t i = 0; i < rowData.size(); i++)
-            {
-                myImage << rowData[i];
-            }
             std::cout << (rowCount/height)*100 << "%\n";
+        }
+        for (size_t i = 0; i < imgData.size(); i++)
+        {
+            for (size_t j = 0; j < imgData[i].size(); j++)
+            {
+                myImage << imgData[i][j];
+            }
         }
         myImage.close();
     }
