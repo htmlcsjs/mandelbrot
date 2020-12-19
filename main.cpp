@@ -45,7 +45,7 @@ double value(int x, int y, double changeWidth, double changeHeight)
     if (nb_iter < iterations)
     {
         double magsq = z.real()*z.real() + z.imag()*z.imag();
-        return ((double)nb_iter - std::log2(std::log2(std::sqrt(magsq)) / std::log2(bailout*2)) / (double)0.69314718055994529) / (double)iterations;
+        return ((double)nb_iter - std::log(std::log(std::sqrt(magsq)) / std::log(bailout*2)) / (double)0.69314718055994529) / (double)iterations;
     }
     return 0;
 }
