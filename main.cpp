@@ -1,39 +1,58 @@
 #include <complex>
 #include <cstring>
+#include <cmath>
 #include <fstream>
 #include <future>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
-#
+
 
 // Declare global varibles
 int imgWidth;
 int imgHeight;
+int iterations = 200;
+int bailout = 16;
 std::string threadMode;
 double widthChange = -1.5;
 double heightChange = -0.5;
+double freqMult = (iterations/20)*5;
+
+/*double freqR = 1;
+double freqG = 0.5;
+double freqB = 0.12;*/
+
+double freqR = .98;
+double freqG = .91;
+double freqB = .86;
+
+/*double freqR = 1;
+double freqG = .74;
+double freqB = .11;*/
 
 /* I dont really know how this works */
-int value(int x, int y, double changeWidth, double changeHeight)
+double value(int x, int y, double changeWidth, double changeHeight)
 {
     std::complex<float> point((float)x / imgWidth + changeWidth, (float)y / imgHeight + changeHeight);
     std::complex<float> z(0, 0);
     int nb_iter = 0;
-    while (std::abs(z) < 2 && nb_iter <= 80)
+    while (std::abs(z) < bailout && nb_iter <= iterations)
     {
         z = z * z + point;
         nb_iter++;
     }
-    if (nb_iter < 20)
+    if (nb_iter < iterations)
     {
-        return (255 * nb_iter) / 20;
+        double magsq = z.real()*z.real() + z.imag()*z.imag();
+        return ((double)nb_iter - std::log2(std::log2(std::sqrt(magsq)) / std::log2(bailout*2)) / (double)0.69314718055994529) / (double)iterations;
     }
-    else
-    {
     return 0;
-    }
+}
+
+double normalisedSin(double input)
+{
+    return (std::sin(input)+1)*0.5;
 }
 
 std::string threadLoop(int startY, int endY, int width)
@@ -46,8 +65,11 @@ std::string threadLoop(int startY, int endY, int width)
 
         for (int x = 0; x < width; x++)
         {
-            int val = value(x, y, widthChange, heightChange);
-            std::string toAppend = "0 0 " + std::to_string(val) + "\n";
+            double val = value(x, y, widthChange, heightChange);
+            int r = (int)(normalisedSin(val * freqR * freqMult)*255);
+            int g = (int)(normalisedSin(val * freqG * freqMult)*255);
+            int b = (int)(normalisedSin(val * freqB * freqMult)*255);
+            std::string toAppend = std::to_string(r) + " " + std::to_string(g) + " "+ std::to_string(b) + "\n";
             rowData.push_back(toAppend); // write the pixel data to rowData
         }
         imgData.push_back(rowData); // write rowData to imgData
@@ -103,6 +125,8 @@ int main(int argc, char const *argv[])
         heightChange = -0.5;
     }
     
+    // print freqMult
+    std::cout << "freqMult is:" << freqMult << "\n";
 
 
     // makes sure we can open the output file
