@@ -40,17 +40,13 @@ double mandelbrot(int x, int y, double changeWidth, double changeHeight)
     std::complex<double> c;
     if (juliaSet)
     {
-        std::complex<double> jz((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
-        std::complex<double> jc(-0.52, 0.570);
-        c = jc;
-        z = jz;
+        c = std::complex<double>(-0.52, 0.570);
+        z = std::complex<double>((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
     }
     else
     {
-        std::complex<float> mc((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
-        std::complex<float> mz(0, 0);
-        c=mc;
-        z=mz;
+        c = std::complex<double>((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
+        z = std::complex<double>(0, 0);
     }
     
     int nb_iter = 0;
