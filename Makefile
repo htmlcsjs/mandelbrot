@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -g -pthread
+CXXFLAGS = -Wall -pthread
 LDFLAGS = 
 
 all: main

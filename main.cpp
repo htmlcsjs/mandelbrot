@@ -18,6 +18,7 @@ std::string threadMode;
 double widthChange = -1.5;
 double heightChange = -0.5;
 double freqMult = (iterations/20)*5;
+double scale = 1;
 
 /*double freqR = 1;
 double freqG = 0.5;
@@ -34,8 +35,8 @@ double freqB = .11;*/
 /* I dont really know how this works */
 double value(int x, int y, double changeWidth, double changeHeight)
 {
-    std::complex<float> point((float)x / imgWidth + changeWidth, (float)y / imgHeight + changeHeight);
-    std::complex<float> z(0, 0);
+    std::complex<double> point((double)x / ((double)imgWidth * scale) + changeWidth, (double)y / ((double)imgHeight * scale) + changeHeight);
+    std::complex<double> z(0, 0);
     int nb_iter = 0;
     while (std::abs(z) < bailout && nb_iter <= iterations)
     {
@@ -104,25 +105,14 @@ int main(int argc, char const *argv[])
         threadMode = argv[3];
     }
     
-    // If the Width change is supplied, remember it 
+    // If the Scale change is supplied, remember it 
     if (argc > 4 && strcmp(argv[4], "d") == false)
     {
-        widthChange = atof(argv[4]);
+        scale = atof(argv[4]);
     }
     else if (argc > 4 && strcmp(argv[4], "d") == true)
     {
-        widthChange = -1.5;
-    }
-    
-    
-    // If the Height change is supplied, remember it
-    if (argc > 5 && strcmp(argv[5], "d") == false)
-    {
-        heightChange = atof(argv[5]);
-    }
-    else if (argc > 5 && strcmp(argv[5], "d") == true)
-    {
-        heightChange = -0.5;
+        scale = 1;
     }
     
     // print freqMult
@@ -161,7 +151,7 @@ int main(int argc, char const *argv[])
             // generate the 11th thread
             auto t11 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 10 + 1, imgHeight / 12 * 11, imgWidth); 
             // generate the 12th thread
-            auto t12 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 11 + 1, imgHeight, imgWidth); 
+            auto t12 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 11 + 1, imgHeight+11, imgWidth); 
 
             data = t1.get();
             data = data + t2.get();            
