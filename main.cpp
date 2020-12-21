@@ -24,23 +24,23 @@ double scale = 1;
 double freqG = 0.5;
 double freqB = 0.12;*/
 
-double freqR = .98;
+/*double freqR = .98;
 double freqG = .91;
-double freqB = .86;
+double freqB = .86;*/
 
-/*double freqR = 1;
+double freqR = 1;
 double freqG = .74;
-double freqB = .11;*/
+double freqB = .11;
 
 /* I dont really know how this works */
-double value(int x, int y, double changeWidth, double changeHeight)
+double mandelbrot(int x, int y, double changeWidth, double changeHeight)
 {
-    std::complex<double> point((double)x / ((double)imgWidth * scale) + changeWidth, (double)y / ((double)imgHeight * scale) + changeHeight);
+    std::complex<double> c((double)x / ((double)imgWidth * scale) + changeWidth, (double)y / ((double)imgHeight * scale) + changeHeight);
     std::complex<double> z(0, 0);
     int nb_iter = 0;
     while (std::abs(z) < bailout && nb_iter <= iterations)
     {
-        z = z * z + point;
+        z = z * z + c;
         nb_iter++;
     }
     if (nb_iter < iterations)
@@ -66,7 +66,7 @@ std::string threadLoop(int startY, int endY, int width)
 
         for (int x = 0; x < width; x++)
         {
-            double val = value(x, y, widthChange, heightChange);
+            double val = mandelbrot(x, y, widthChange, heightChange);
             int r = (int)(normalisedSin(val * freqR * freqMult)*255);
             int g = (int)(normalisedSin(val * freqG * freqMult)*255);
             int b = (int)(normalisedSin(val * freqB * freqMult)*255);
@@ -114,7 +114,6 @@ int main(int argc, char const *argv[])
     {
         scale = 1;
     }
-    
     // print freqMult
     std::cout << "freqMult is:" << freqMult << "\n";
 
