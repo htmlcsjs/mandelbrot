@@ -18,28 +18,45 @@ std::string threadMode;
 double widthChange = -1.5;
 double heightChange = -0.5;
 double freqMult = (iterations/20)*5;
+bool juliaSet = true;
+double scale = 1;
 
 /*double freqR = 1;
 double freqG = 0.5;
 double freqB = 0.12;*/
 
-double freqR = .98;
+/*double freqR = .98;
 double freqG = .91;
-double freqB = .86;
+double freqB = .86;*/
 
-/*double freqR = 1;
+double freqR = 1;
 double freqG = .74;
-double freqB = .11;*/
+double freqB = .11;
 
 /* I dont really know how this works */
-double value(int x, int y, double changeWidth, double changeHeight)
+double mandelbrot(int x, int y, double changeWidth, double changeHeight)
 {
-    std::complex<float> point((float)x / imgWidth + changeWidth, (float)y / imgHeight + changeHeight);
-    std::complex<float> z(0, 0);
+    std::complex<double> z;
+    std::complex<double> c;
+    if (juliaSet)
+    {
+        std::complex<double> jz((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
+        std::complex<double> jc(-0.52, 0.570);
+        c = jc;
+        z = jz;
+    }
+    else
+    {
+        std::complex<float> mc((float)(x / imgWidth) * scale + changeWidth, (float)(y / imgHeight) * scale + changeHeight);
+        std::complex<float> mz(0, 0);
+        c=mc;
+        z=mz;
+    }
+    
     int nb_iter = 0;
     while (std::abs(z) < bailout && nb_iter <= iterations)
     {
-        z = z * z + point;
+        z = z * z + c;
         nb_iter++;
     }
     if (nb_iter < iterations)
@@ -65,7 +82,7 @@ std::string threadLoop(int startY, int endY, int width)
 
         for (int x = 0; x < width; x++)
         {
-            double val = value(x, y, widthChange, heightChange);
+            double val = mandelbrot(x, y, widthChange, heightChange);
             int r = (int)(normalisedSin(val * freqR * freqMult)*255);
             int g = (int)(normalisedSin(val * freqG * freqMult)*255);
             int b = (int)(normalisedSin(val * freqB * freqMult)*255);
@@ -104,27 +121,22 @@ int main(int argc, char const *argv[])
         threadMode = argv[3];
     }
     
-    // If the Width change is supplied, remember it 
-    if (argc > 4 && strcmp(argv[4], "d") == false)
+        
+    // If the scale change is supplied, remember it
+    if (argc > 4)
     {
-        widthChange = atof(argv[4]);
-    }
-    else if (argc > 4 && strcmp(argv[4], "d") == true)
-    {
-        widthChange = -1.5;
+        scale = atof(argv[4]);
     }
     
-    
-    // If the Height change is supplied, remember it
-    if (argc > 5 && strcmp(argv[5], "d") == false)
+    // If the type is supplied, remember it 
+    if (argc > 5 && strcmp(argv[5], "j") == false)
     {
-        heightChange = atof(argv[5]);
+        juliaSet = false;
     }
-    else if (argc > 5 && strcmp(argv[5], "d") == true)
+    else if (argc > 5 && strcmp(argv[5], "j") == true)
     {
-        heightChange = -0.5;
+        juliaSet = true;
     }
-    
     // print freqMult
     std::cout << "freqMult is:" << freqMult << "\n";
 
@@ -161,7 +173,7 @@ int main(int argc, char const *argv[])
             // generate the 11th thread
             auto t11 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 10 + 1, imgHeight / 12 * 11, imgWidth); 
             // generate the 12th thread
-            auto t12 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 11 + 1, imgHeight, imgWidth); 
+            auto t12 = std::async(std::launch::async, threadLoop, imgHeight / 12 * 11 + 1, imgHeight + 11, imgWidth); 
 
             data = t1.get();
             data = data + t2.get();            
